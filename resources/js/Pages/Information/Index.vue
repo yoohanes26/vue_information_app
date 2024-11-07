@@ -393,15 +393,6 @@
         loadingDatatable.value = true;
         selectedInformation.value = null;
 
-        if(axiosSearchParams.keisai_ymd)
-            axiosSearchParams.keisai_ymd = new Date(axiosSearchParams.keisai_ymd.getTime() - axiosSearchParams.keisai_ymd.getTimezoneOffset() * 60000);
-
-        if(axiosSearchParams.enable_start_ymd)
-            axiosSearchParams.enable_start_ymd = new Date(axiosSearchParams.enable_start_ymd.getTime() - axiosSearchParams.enable_start_ymd.getTimezoneOffset() * 60000);
-
-        if(axiosSearchParams.enable_end_ymd)
-            axiosSearchParams.enable_end_ymd = new Date(axiosSearchParams.enable_end_ymd.getTime() - axiosSearchParams.enable_end_ymd.getTimezoneOffset() * 60000);
-
         axios.get('/api/information', {
             params: axiosSearchParams
         }).then(res => {
@@ -414,6 +405,21 @@
             to = res.data.to
             total = res.data.total
         })
+    }
+
+    const normalizeKeisaiYmd = () => {
+        if(axiosSearchParams.keisai_ymd)
+            axiosSearchParams.keisai_ymd = new Date(axiosSearchParams.keisai_ymd.getTime() - axiosSearchParams.keisai_ymd.getTimezoneOffset() * 60000);
+    }
+
+    const normalizeEnableStart = () => {
+        if (axiosSearchParams.enable_start_ymd)
+            axiosSearchParams.enable_start_ymd = new Date(axiosSearchParams.enable_start_ymd.getTime() - axiosSearchParams.enable_start_ymd.getTimezoneOffset() * 60000);
+    }
+
+    const normalizeEnableEnd = () => {
+        if (axiosSearchParams.enable_end_ymd)
+            axiosSearchParams.enable_end_ymd = new Date(axiosSearchParams.enable_end_ymd.getTime() - axiosSearchParams.enable_end_ymd.getTimezoneOffset() * 60000);
     }
 
     const resetSearch = () => {
@@ -458,15 +464,15 @@
                             <div class="col-span-2"></div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">掲載日</label>
-                                <DatePicker v-model="axiosSearchParams.keisai_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosSearchParams.enable_start_ymd" />
+                                <DatePicker v-model="axiosSearchParams.keisai_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosSearchParams.enable_start_ymd" @update:modelValue="normalizeKeisaiYmd"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">適用期間</label>
-                                <DatePicker v-model="axiosSearchParams.enable_start_ymd" class="my-auto" showIcon fluid iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosSearchParams.enable_end_ymd" />
+                                <DatePicker v-model="axiosSearchParams.enable_start_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosSearchParams.enable_end_ymd" @update:modelValue="normalizeEnableStart"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto mx-auto font-bold">～</label>
-                                <DatePicker v-model="axiosSearchParams.enable_end_ymd" class="my-auto" showIcon fluid iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosSearchParams.enable_start_ymd" />
+                                <DatePicker v-model="axiosSearchParams.enable_end_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosSearchParams.enable_start_ymd" @update:modelValue="normalizeEnableEnd"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <Button label=検索 severity="info" class="p-0 ml-5" @click="searchInformation" />
