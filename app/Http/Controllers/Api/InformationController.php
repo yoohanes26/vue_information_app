@@ -26,6 +26,8 @@ class InformationController {
                     $information = $information->orderBy($request->sortField, 'desc');
                 }
             }
+        } else {
+            $information = $information->orderByDesc('create_time');
         }
 
         $information = $information->paginate($request->rows);

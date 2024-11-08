@@ -91,18 +91,21 @@ class AsmsInformation extends Model
             return $query->whereDate('enable_start_ymd', '<=', $end)->whereDate('enable_end_ymd', '>=', $end);
         } else if(!empty($start) && !empty($end)){
             return $query->where(function($q) use ($start, $end){
-                // IF THE SEARCH SCOPE IS GREATER THAN RESULTS
-                $q->whereDate('enable_start_ymd', '>=', $start)->whereDate('enable_end_ymd', '<=', $end);
-            })->orWhere(function($q) use ($start, $end){
-                // IF THE SEARCH SCOPE IS SMALLER AND INSIDE THE RESULTS
-                $q->whereDate('enable_start_ymd', '<=', $start)->whereDate('enable_end_ymd', '>=', $end);
-            })->orWhere(function($q) use ($start, $end){
-                // IF ONLY THE START DATE INSIDE THE RESULT
-                $q->whereDate('enable_start_ymd', '>=', $start)->whereDate('enable_start_ymd', '<=', $end);
-            })->orWhere(function($q) use ($start, $end){
-                // IF ONLY THE END DATE INSIDE THE RESULT
-                $q->whereDate('enable_end_ymd', '>=', $start)->whereDate('enable_end_ymd', '<=', $end);
+                $q->where(function($q) use ($start, $end){
+                    // IF THE SEARCH SCOPE IS GREATER THAN RESULTS
+                    $q->whereDate('enable_start_ymd', '>=', $start)->whereDate('enable_end_ymd', '<=', $end);
+                })->orWhere(function($q) use ($start, $end){
+                    // IF THE SEARCH SCOPE IS SMALLER AND INSIDE THE RESULTS
+                    $q->whereDate('enable_start_ymd', '<=', $start)->whereDate('enable_end_ymd', '>=', $end);
+                })->orWhere(function($q) use ($start, $end){
+                    // IF ONLY THE START DATE INSIDE THE RESULT
+                    $q->whereDate('enable_start_ymd', '>=', $start)->whereDate('enable_start_ymd', '<=', $end);
+                })->orWhere(function($q) use ($start, $end){
+                    // IF ONLY THE END DATE INSIDE THE RESULT
+                    $q->whereDate('enable_end_ymd', '>=', $start)->whereDate('enable_end_ymd', '<=', $end);
+                });
             });
+
         }
         return $query;
     }

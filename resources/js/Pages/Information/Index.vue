@@ -149,7 +149,10 @@
     }
 
     const createInformation = () => {
+        let validated = true
+
         if(!axiosCreateParams.information_title) {
+            validated = false
             validationCreateForm.information_title = false
             addErrorMessages('createForm', 'information_title', 'フィールドが必須です。')
         } else {
@@ -158,30 +161,50 @@
         }
 
         if(!axiosCreateParams.keisai_ymd) {
+            validated = false
             validationCreateForm.keisai_ymd = false
             addErrorMessages('createForm', 'keisai_ymd', 'フィールドが必須です。')
+        } else if(axiosCreateParams.keisai_ymd > axiosCreateParams.enable_start_ymd) {
+            validated = false
+            validationCreateForm.keisai_ymd = false
+            addErrorMessages('createForm', 'keisai_ymd', '掲載日は適用期間より後に設定出来ません。')
         } else {
             validationCreateForm.keisai_ymd = true
             removeMessages('createForm', 'keisai_ymd')
         }
 
         if(!axiosCreateParams.enable_start_ymd) {
+            validated = false
             validationCreateForm.enable_start_ymd = false
             addErrorMessages('createForm', 'enable_start_ymd', 'フィールドが必須です。')
+        } else if(axiosCreateParams.enable_start_ymd < axiosCreateParams.keisai_ymd) {
+            validated = false
+            validationCreateForm.enable_start_ymd = false
+            addErrorMessages('createForm', 'enable_start_ymd', '適用期間開始日は掲載日より前に設定出来ません。')
+        } else if(axiosCreateParams.enable_start_ymd > axiosCreateParams.enable_end_ymd) {
+            validated = false
+            validationCreateForm.enable_start_ymd = false
+            addErrorMessages('createForm', 'enable_start_ymd', '適用期間開始日は適用期間終了日より後に設定出来ません。')
         } else {
             validationCreateForm.enable_start_ymd = true
             removeMessages('createForm', 'enable_start_ymd')
         }
 
         if(!axiosCreateParams.enable_end_ymd) {
+            validated = false
             validationCreateForm.enable_end_ymd = false
             addErrorMessages('createForm', 'enable_end_ymd', 'フィールドが必須です。')
+        } else if(axiosCreateParams.enable_end_ymd < axiosCreateParams.enable_start_ymd) {
+            validated = false
+            validationCreateForm.enable_end_ymd = false
+            addErrorMessages('createForm', 'enable_end_ymd', '適用期間終了日は適用期間開始日より前に設定出来ません。')
         } else {
             validationCreateForm.enable_end_ymd = true
             removeMessages('createForm', 'enable_end_ymd')
         }
 
         if(!axiosCreateParams.information_naiyo) {
+            validated = false
             validationCreateForm.information_naiyo = false
             addErrorMessages('createForm', 'information_naiyo', 'フィールドが必須です。')
         } else {
@@ -189,7 +212,7 @@
             removeMessages('createForm', 'information_naiyo')
         }
 
-        if(axiosCreateParams.information_title && axiosCreateParams.keisai_ymd && axiosCreateParams.enable_start_ymd && axiosCreateParams.enable_end_ymd && axiosCreateParams.information_naiyo){
+        if(validated){
             buttonLoading.createForm = true
             axiosCreateParams.keisai_ymd = new Date(axiosCreateParams.keisai_ymd.getTime() - axiosCreateParams.keisai_ymd.getTimezoneOffset() * 60000);
             axiosCreateParams.enable_start_ymd = new Date(axiosCreateParams.enable_start_ymd.getTime() - axiosCreateParams.enable_start_ymd.getTimezoneOffset() * 60000);
@@ -464,15 +487,15 @@
                             <div class="col-span-2"></div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">掲載日</label>
-                                <DatePicker v-model="axiosSearchParams.keisai_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosSearchParams.enable_start_ymd" @update:modelValue="normalizeKeisaiYmd"/>
+                                <DatePicker v-model="axiosSearchParams.keisai_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeKeisaiYmd"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">適用期間</label>
-                                <DatePicker v-model="axiosSearchParams.enable_start_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosSearchParams.enable_end_ymd" @update:modelValue="normalizeEnableStart"/>
+                                <DatePicker v-model="axiosSearchParams.enable_start_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeEnableStart"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto mx-auto font-bold">～</label>
-                                <DatePicker v-model="axiosSearchParams.enable_end_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosSearchParams.enable_start_ymd" @update:modelValue="normalizeEnableEnd"/>
+                                <DatePicker v-model="axiosSearchParams.enable_end_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeEnableEnd"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <Button label=検索 severity="info" class="p-0 ml-5" @click="searchInformation" />
@@ -555,7 +578,7 @@
             <label for="email" class="font-semibold w-40">掲載日</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosCreateParams.keisai_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosCreateParams.enable_start_ymd" :invalid="!validationCreateForm.keisai_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosCreateParams.keisai_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.keisai_ymd"/>
                     <Message v-if="messages.createForm.keisai_ymd.show" :severity="messages.createForm.keisai_ymd.severity" class="mt-4">{{ messages.createForm.keisai_ymd.content }}</Message>
                 </div>
             </div>
@@ -564,13 +587,13 @@
             <label for="email" class="font-semibold w-40">適用期間</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_start_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosCreateParams.keisai_ymd" :maxDate="axiosCreateParams.enable_end_ymd" :invalid="!validationCreateForm.enable_start_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_start_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.enable_start_ymd"/>
                     <Message v-if="messages.createForm.enable_start_ymd.show" :severity="messages.createForm.enable_start_ymd.severity" class="mt-4">{{ messages.createForm.enable_start_ymd.content }}</Message>                </div>
             </div>
             <span>～</span>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_end_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosCreateParams.enable_start_ymd" :invalid="!validationCreateForm.enable_end_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_end_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.enable_end_ymd"/>
                     <Message v-if="messages.createForm.enable_end_ymd.show" :severity="messages.createForm.enable_end_ymd.severity" class="mt-4">{{ messages.createForm.enable_end_ymd.content }}</Message>
                 </div>
             </div>
