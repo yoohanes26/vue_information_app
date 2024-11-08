@@ -134,7 +134,7 @@ class InformationController {
 
         $modelInformation = AsmsInformation::find($request['information_id']);
 
-        if($modelInformation->delete()){
+        if($modelInformation->update(['delete_flg' => 1])){
             return response()->json([
                 'status' => 'success',
                 'message' => 'お知らせ削除が成功しました。',
