@@ -106,7 +106,7 @@
     })
 
     const searchInformation = () => {
-        if(axiosSearchParams.enable_start_ymd > axiosSearchParams.enable_end_ymd)
+        if(axiosSearchParams.enable_start_ymd && axiosSearchParams.enable_end_ymd && axiosSearchParams.enable_start_ymd > axiosSearchParams.enable_end_ymd)
             toast.add({
                 severity: 'error', summary: 'エラー', detail: '適用機開始日は終了日より後に設定できません', life: 3000
             })
@@ -292,7 +292,10 @@
     }
 
     const editInformation = () => {
+        let validated = true
+
         if(!axiosEditParams.information_title) {
+            validated = false
             validationEditForm.information_title = false
             addErrorMessages('editForm', 'information_title', 'フィールドが必須です。')
         } else {
@@ -301,30 +304,50 @@
         }
 
         if(!axiosEditParams.keisai_ymd) {
+            validated = false
             validationEditForm.keisai_ymd = false
             addErrorMessages('editForm', 'keisai_ymd', 'フィールドが必須です。')
+        } else if(axiosEditParams.keisai_ymd > axiosEditParams.enable_start_ymd) {
+            validated = false
+            validationEditForm.keisai_ymd = false
+            addErrorMessages('editForm', 'keisai_ymd', '掲載日は適用期間より後に設定出来ません。')
         } else {
             validationEditForm.keisai_ymd = true
             removeMessages('editForm', 'keisai_ymd')
         }
 
         if(!axiosEditParams.enable_start_ymd) {
+            validated = false
             validationEditForm.enable_start_ymd = false
             addErrorMessages('editForm', 'enable_start_ymd', 'フィールドが必須です。')
+        } else if(axiosEditParams.enable_start_ymd < axiosEditParams.keisai_ymd) {
+            validated = false
+            validationEditForm.enable_start_ymd = false
+            addErrorMessages('editForm', 'enable_start_ymd', '適用期間開始日は掲載日より前に設定出来ません。')
+        } else if(axiosEditParams.enable_start_ymd > axiosEditParams.enable_end_ymd) {
+            validated = false
+            validationEditForm.enable_start_ymd = false
+            addErrorMessages('editForm', 'enable_start_ymd', '適用期間開始日は適用期間終了日より後に設定出来ません。')
         } else {
             validationEditForm.enable_start_ymd = true
             removeMessages('editForm', 'enable_start_ymd')
         }
 
         if(!axiosEditParams.enable_end_ymd) {
+            validated = false
             validationEditForm.enable_end_ymd = false
             addErrorMessages('editForm', 'enable_end_ymd', 'フィールドが必須です。')
+        } else if(axiosEditParams.enable_end_ymd < axiosEditParams.enable_start_ymd) {
+            validated = false
+            validationEditForm.enable_end_ymd = false
+            addErrorMessages('editForm', 'enable_end_ymd', '適用期間終了日は適用期間開始日より前に設定出来ません。')
         } else {
             validationEditForm.enable_end_ymd = true
             removeMessages('editForm', 'enable_end_ymd')
         }
 
         if(!axiosEditParams.information_naiyo) {
+            validated = false
             validationEditForm.information_naiyo = false
             addErrorMessages('editForm', 'information_naiyo', 'フィールドが必須です。')
         } else {
@@ -332,7 +355,7 @@
             removeMessages('editForm', 'information_naiyo')
         }
 
-        if(axiosEditParams.information_title && axiosEditParams.keisai_ymd && axiosEditParams.enable_start_ymd && axiosEditParams.enable_end_ymd && axiosEditParams.information_naiyo){
+        if(validated){
             buttonLoading.editForm = true
             axiosEditParams.keisai_ymd = new Date(axiosEditParams.keisai_ymd.getTime() - axiosEditParams.keisai_ymd.getTimezoneOffset() * 60000);
             axiosEditParams.enable_start_ymd = new Date(axiosEditParams.enable_start_ymd.getTime() - axiosEditParams.enable_start_ymd.getTimezoneOffset() * 60000);
@@ -636,7 +659,7 @@
             <label for="email" class="font-semibold w-40">掲載日</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosEditParams.keisai_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :maxDate="axiosEditParams.enable_start_ymd" @date-select="handleKeisaiDateEditForm($event)" :invalid="!validationEditForm.keisai_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosEditParams.keisai_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.keisai_ymd"/>
                     <Message v-if="messages.editForm.keisai_ymd.show" :severity="messages.editForm.keisai_ymd.severity" class="mt-4">{{ messages.editForm.keisai_ymd.content }}</Message>
                 </div>
             </div>
@@ -645,14 +668,14 @@
             <label for="email" class="font-semibold w-40">適用期間</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_start_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosEditParams.keisai_ymd" :maxDate="axiosEditParams.enable_end_ymd" @date-select="handleStartDateEditForm($event)" :invalid="!validationEditForm.enable_start_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_start_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.enable_start_ymd"/>
                     <Message v-if="messages.editForm.enable_start_ymd.show" :severity="messages.editForm.enable_start_ymd.severity" class="mt-4">{{ messages.editForm.enable_start_ymd.content }}</Message>
                 </div>
             </div>
             <span>～</span>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_end_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :minDate="axiosEditParams.enable_start_ymd" @date-select="handleEndDateEditForm($event)" :invalid="!validationEditForm.enable_end_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_end_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.enable_end_ymd"/>
                     <Message v-if="messages.editForm.enable_end_ymd.show" :severity="messages.editForm.enable_end_ymd.severity" class="mt-4">{{ messages.editForm.enable_end_ymd.content }}</Message>
                 </div>
             </div>
