@@ -93,6 +93,14 @@
         10,
     ]
 
+    const axiosSearchForm = reactive({
+        information_title : null,
+        information_kbn : 2,
+        keisai_ymd : null,
+        enable_start_ymd : null,
+        enable_end_ymd : null,
+    })
+
     const axiosSearchParams = reactive({
         information_title : null,
         information_kbn : 2,
@@ -106,12 +114,18 @@
     })
 
     const searchInformation = () => {
-        if(axiosSearchParams.enable_start_ymd && axiosSearchParams.enable_end_ymd && axiosSearchParams.enable_start_ymd > axiosSearchParams.enable_end_ymd)
+        if(axiosSearchForm.enable_start_ymd && axiosSearchForm.enable_end_ymd && axiosSearchForm.enable_start_ymd > axiosSearchForm.enable_end_ymd)
             toast.add({
                 severity: 'error', summary: 'エラー', detail: '適用機開始日は終了日より後に設定できません', life: 3000
             })
-        else
+        else{
+            axiosSearchParams.information_title = axiosSearchForm.information_title
+            axiosSearchParams.information_kbn = axiosSearchForm.information_kbn
+            axiosSearchParams.keisai_ymd = axiosSearchForm.keisai_ymd
+            axiosSearchParams.enable_start_ymd = axiosSearchForm.enable_start_ymd
+            axiosSearchParams.enable_end_ymd = axiosSearchForm.enable_end_ymd
             tableRequest()
+        }
     }
 
     const kbn_form = [
@@ -459,18 +473,18 @@
     }
 
     const normalizeKeisaiYmd = () => {
-        if(axiosSearchParams.keisai_ymd)
-            axiosSearchParams.keisai_ymd = new Date(axiosSearchParams.keisai_ymd.getTime() - axiosSearchParams.keisai_ymd.getTimezoneOffset() * 60000);
+        if(axiosSearchForm.keisai_ymd)
+            axiosSearchForm.keisai_ymd = new Date(axiosSearchForm.keisai_ymd.getTime() - axiosSearchForm.keisai_ymd.getTimezoneOffset() * 60000);
     }
 
     const normalizeEnableStart = () => {
-        if (axiosSearchParams.enable_start_ymd)
-            axiosSearchParams.enable_start_ymd = new Date(axiosSearchParams.enable_start_ymd.getTime() - axiosSearchParams.enable_start_ymd.getTimezoneOffset() * 60000);
+        if (axiosSearchForm.enable_start_ymd)
+            axiosSearchForm.enable_start_ymd = new Date(axiosSearchForm.enable_start_ymd.getTime() - axiosSearchForm.enable_start_ymd.getTimezoneOffset() * 60000);
     }
 
     const normalizeEnableEnd = () => {
-        if (axiosSearchParams.enable_end_ymd)
-            axiosSearchParams.enable_end_ymd = new Date(axiosSearchParams.enable_end_ymd.getTime() - axiosSearchParams.enable_end_ymd.getTimezoneOffset() * 60000);
+        if (axiosSearchForm.enable_end_ymd)
+            axiosSearchForm.enable_end_ymd = new Date(axiosSearchForm.enable_end_ymd.getTime() - axiosSearchForm.enable_end_ymd.getTimezoneOffset() * 60000);
     }
 
     const resetSearch = () => {
@@ -479,6 +493,12 @@
         axiosSearchParams.keisai_ymd = ''
         axiosSearchParams.enable_start_ymd = ''
         axiosSearchParams.enable_end_ymd = ''
+
+        axiosSearchForm.information_title = ''
+        axiosSearchForm.information_kbn = 2
+        axiosSearchForm.keisai_ymd = ''
+        axiosSearchForm.enable_start_ymd = ''
+        axiosSearchForm.enable_end_ymd = ''
 
         tableRequest()
     }
@@ -506,24 +526,24 @@
                         <div class="flex-col pl-4 my-4 w-full mx-auto grid grid-cols-4">
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">お知らせタイトル</label>
-                                <InputText v-model="axiosSearchParams.information_title" class="my-auto"/>
+                                <InputText v-model="axiosSearchForm.information_title" class="my-auto"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">お知らせ区分</label>
-                                <Select v-model="axiosSearchParams.information_kbn" :options="kbn_search_select" class="my-auto" optionLabel="name" optionValue="value"/>
+                                <Select v-model="axiosSearchForm.information_kbn" :options="kbn_search_select" class="my-auto" optionLabel="name" optionValue="value"/>
                             </div>
                             <div class="col-span-2"></div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">掲載日</label>
-                                <DatePicker v-model="axiosSearchParams.keisai_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeKeisaiYmd"/>
+                                <DatePicker v-model="axiosSearchForm.keisai_ymd" class="my-auto" :manualInput="false" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeKeisaiYmd"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto font-bold">適用期間</label>
-                                <DatePicker v-model="axiosSearchParams.enable_start_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeEnableStart"/>
+                                <DatePicker v-model="axiosSearchForm.enable_start_ymd" class="my-auto" :manualInput="false" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeEnableStart"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <label for="information_title" class="pl-4 my-auto mx-auto font-bold">～</label>
-                                <DatePicker v-model="axiosSearchParams.enable_end_ymd" class="my-auto" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeEnableEnd"/>
+                                <DatePicker v-model="axiosSearchForm.enable_end_ymd" class="my-auto" :manualInput="false" showIcon showButtonBar fluid iconDisplay="input" dateFormat="yy/mm/dd" @update:modelValue="normalizeEnableEnd"/>
                             </div>
                             <div class="grid grid-cols-2 pb-3">
                                 <Button label=検索 severity="info" class="p-0 ml-5" @click="searchInformation" />
@@ -606,7 +626,7 @@
             <label for="email" class="font-semibold w-40">掲載日</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosCreateParams.keisai_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.keisai_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosCreateParams.keisai_ymd" :manualInput="false" showIcon showButtonBar iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.keisai_ymd"/>
                     <Message v-if="messages.createForm.keisai_ymd.show" :severity="messages.createForm.keisai_ymd.severity" class="mt-4">{{ messages.createForm.keisai_ymd.content }}</Message>
                 </div>
             </div>
@@ -615,13 +635,13 @@
             <label for="email" class="font-semibold w-40">適用期間</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_start_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.enable_start_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_start_ymd" :manualInput="false" showIcon showButtonBar iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.enable_start_ymd"/>
                     <Message v-if="messages.createForm.enable_start_ymd.show" :severity="messages.createForm.enable_start_ymd.severity" class="mt-4">{{ messages.createForm.enable_start_ymd.content }}</Message>                </div>
             </div>
             <span>～</span>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_end_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.enable_end_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosCreateParams.enable_end_ymd" :manualInput="false" showIcon showButtonBar iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationCreateForm.enable_end_ymd"/>
                     <Message v-if="messages.createForm.enable_end_ymd.show" :severity="messages.createForm.enable_end_ymd.severity" class="mt-4">{{ messages.createForm.enable_end_ymd.content }}</Message>
                 </div>
             </div>
@@ -659,7 +679,7 @@
             <label for="email" class="font-semibold w-40">掲載日</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosEditParams.keisai_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.keisai_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosEditParams.keisai_ymd" :manualInput="false" showIcon showButtonBar iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.keisai_ymd"/>
                     <Message v-if="messages.editForm.keisai_ymd.show" :severity="messages.editForm.keisai_ymd.severity" class="mt-4">{{ messages.editForm.keisai_ymd.content }}</Message>
                 </div>
             </div>
@@ -668,14 +688,14 @@
             <label for="email" class="font-semibold w-40">適用期間</label>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_start_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.enable_start_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_start_ymd" :manualInput="false" showIcon showButtonBar iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.enable_start_ymd"/>
                     <Message v-if="messages.editForm.enable_start_ymd.show" :severity="messages.editForm.enable_start_ymd.severity" class="mt-4">{{ messages.editForm.enable_start_ymd.content }}</Message>
                 </div>
             </div>
             <span>～</span>
             <div class="flex-auto">
                 <div class="flex flex-col">
-                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_end_ymd" showIcon iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.enable_end_ymd"/>
+                    <DatePicker class="flex-auto" v-model="axiosEditParams.enable_end_ymd" :manualInput="false" showIcon showButtonBar iconDisplay="input" dateFormat="yy/mm/dd" :invalid="!validationEditForm.enable_end_ymd"/>
                     <Message v-if="messages.editForm.enable_end_ymd.show" :severity="messages.editForm.enable_end_ymd.severity" class="mt-4">{{ messages.editForm.enable_end_ymd.content }}</Message>
                 </div>
             </div>
