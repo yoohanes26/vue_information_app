@@ -105,6 +105,15 @@
         rows: rows
     })
 
+    const searchInformation = () => {
+        if(axiosSearchParams.enable_start_ymd > axiosSearchParams.enable_end_ymd)
+            toast.add({
+                severity: 'error', summary: 'エラー', detail: '適用機開始日は終了日より後に設定できません', life: 3000
+            })
+        else
+            tableRequest()
+    }
+
     const kbn_form = [
         {'name': '重要', 'value': 0},
         {'name': '情報', 'value': 1},
@@ -389,10 +398,6 @@
         editForm : false,
         deleteConfirmation : false,
     })
-
-    const searchInformation = () => {
-        tableRequest()
-    }
 
     const onPage = (event) => {
         axiosSearchParams.rows = event.rows
