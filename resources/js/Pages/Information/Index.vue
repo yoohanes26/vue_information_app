@@ -514,14 +514,14 @@
 
 <template>
     <Toast />
-    <Head title="顧客一覧" />
+    <Head title="お知らせ一覧" />
     <div id="app">
         <div class="mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <section class="text-gray-600 body-font">
                     <div class="container px-5 py-8 mx-auto">
                         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                            お知らせ一覧
+                            お知らせ検索
                         </h2>
                         <div class="flex-col pl-4 my-4 w-full mx-auto grid grid-cols-4">
                             <div class="grid grid-cols-2 pb-3">
